@@ -15,17 +15,17 @@ class Cache
     /**
      * @var string
      */
-    public $path = '/var/cache';
+    static public $path = '/var/cache';
 
     /**
      * @var string
      */
-    private $_prefix;
+    static private $_prefix;
 
     /**
      * @var array
      */
-    private $_cache;
+    static private $_cache;
 
     /**
      * Get a cached element
@@ -34,12 +34,12 @@ class Cache
      * @param $expires
      * @return mixed
      */
-    public function get($key, $expires = null)
+    static public function get($key, $expires = null)
     {
-        if ($this->_cache[$key])
-            return $this->_cache[$key];
+        if (self::$_cache[$key])
+            return self::$_cache[$key];
 
-        $file = $this->getFilename($key);
+        $file = self::getFilename($key);
         if (!file_exists($file))
             return null;
         $result = unserialize(file_get_contents($file));
@@ -49,7 +49,7 @@ class Cache
         }
         if (!isset($result['data']))
             return null;
-        return $this->_cache[$key] = $result['data'];
+        return self::$_cache[$key] = $result['data'];
     }
 
     /**
@@ -59,9 +59,9 @@ class Cache
      * @param $value
      * @param $expires
      */
-    public function set($key, $value, $expires = null)
+    static public function set($key, $value, $expires = null)
     {
-        $file = $this->getFilename($key);
+        $file = self::getFilename($key);
         if (!file_exists(dirname($file)))
             mkdir(dirname($file), 0700, true);
         file_put_contents($file, serialize(array('data' => $value, 'time' => strtotime($expires))));
@@ -73,7 +73,7 @@ class Cache
      */
     public function clear()
     {
-        $this->getPrefix(true);
+        self::getPrefix(true);
     }
 
     /**
@@ -83,7 +83,7 @@ class Cache
     private function getFilename($key)
     {
         $md5 = md5($key);
-        $path = $this->path . DS . $this->getPrefix();
+        $path = self::$path . DS . self::getPrefix();
         $path .= DS . substr($md5, 0, 1) . DS . substr($md5, 0, 2) . DS . substr($md5, 0, 3);
         return $path . DS . $key;
     }
@@ -96,17 +96,17 @@ class Cache
      */
     private function getPrefix($removeOldKey = false)
     {
-        if ($this->_prefix)
-            return $this->_prefix;
+        if (self::$_prefix)
+            return self::$_prefix;
 
         if ($removeOldKey) {
             $prefix = time();
-            file_put_contents($this->path . DS . 'prefix', $prefix);
+            file_put_contents(self::$path . DS . 'prefix', $prefix);
         }
         else {
-            $prefix = file_get_contents($this->path . DS . 'prefix');
+            $prefix = file_get_contents(self::$path . DS . 'prefix');
         }
-        return $this->_prefix = $prefix . '.';
+        return self::$_prefix = $prefix . '.';
     }
 
 }
