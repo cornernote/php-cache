@@ -59,7 +59,7 @@ class Cache
      * @param $value
      * @param $expires
      */
-    public function setCache($key, $value, $expires = null)
+    public function set($key, $value, $expires = null)
     {
         $file = $this->getFilename($key);
         if (!file_exists(dirname($file)))
@@ -71,7 +71,7 @@ class Cache
     /**
      * Clear cache for this model
      */
-    public function clearCache()
+    public function clear()
     {
         $this->getPrefix(true);
     }
